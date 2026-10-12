@@ -11,7 +11,11 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "clerk-nextjs/**",
     "next-env.d.ts",
+    // Scratch/test scripts
+    "scratch/**",
+    "node_modules/**",
   ]),
 ]);
 

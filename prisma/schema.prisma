@@ -1,0 +1,216 @@
+// Prisma Schema for AI Learning Management System (AI-LMS / learn-ai)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id                  String        @id @default(cuid())
+  clerkId             String        @unique
+  name                String?
+  email               String        @unique
+  role                Role?
+  teacherClasses      Class[]       @relation("TeacherClasses")
+  studentEnrollments  ClassMember[] @relation("StudentEnrollments")
+  teacherAssignments  Assignment[]  @relation("TeacherAssignments")
+  studentSubmissions  Submission[]  @relation("StudentSubmissions")
+  teacherQuizzes      Quiz[]        @relation("TeacherQuizzes")
+  studentQuizAttempts QuizAttempt[] @relation("StudentQuizAttempts")
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  chatSessions        ChatSession[]
+  teacherHackathons   Hackathon[]   @relation("TeacherHackathons")
+  notifications       Notification[]
+
+  @@map("users")
+}
+
+model Class {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  joinCode    String        @unique
+  teacherId   String
+  teacher     User          @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  members     ClassMember[]
+  assignments Assignment[]
+  quizzes     Quiz[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("classes")
+}
+
+model ClassMember {
+  id        String   @id @default(cuid())
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User     @relation("StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([classId, studentId])
+  @@map("class_members")
+}
+
+model Assignment {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime
+  maxMarks    Int          @default(100)
+  classId     String
+  class       Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacherId   String
+  teacher     User         @relation("TeacherAssignments", fields: [teacherId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("assignments")
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      User       @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  content      String
+  submittedAt  DateTime   @default(now())
+  marks        Int?
+  feedback     String?
+  evaluatedAt  DateTime?
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([assignmentId, studentId])
+  @@map("submissions")
+}
+
+model Quiz {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  classId     String
+  class       Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacherId   String
+  teacher     User           @relation("TeacherQuizzes", fields: [teacherId], references: [id], onDelete: Cascade)
+  published   Boolean        @default(false)
+  questions   QuizQuestion[]
+  attempts    QuizAttempt[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id            String   @id @default(cuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctOption String   // "A" | "B" | "C" | "D"
+  marks         Int      @default(1)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation("StudentQuizAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+  score       Int
+  totalMarks  Int
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([quizId, studentId])
+  @@map("quiz_attempts")
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String        @default("New Tutor Session")
+  subject   String        @default("General Learning")
+  tutorMode String        @default("socratic")
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String      // "user" | "assistant" | "system"
+  content   String
+  createdAt DateTime    @default(now())
+
+  @@map("chat_messages")
+}
+
+model Hackathon {
+  id                   String    @id @default(cuid())
+  title                String
+  description          String?
+  url                  String
+  organizer            String?
+  location             String?   @default("Online")
+  startDate            DateTime?
+  endDate              DateTime?
+  registrationDeadline DateTime?
+  published            Boolean   @default(false)
+  teacherId            String
+  teacher              User      @relation("TeacherHackathons", fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@map("hackathons")
+}
+
+enum NotificationType {
+  ANNOUNCEMENT
+  ASSIGNMENT
+  QUIZ
+  HACKATHON
+  REMINDER
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
+}
+

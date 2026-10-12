@@ -1,0 +1,54 @@
+import React from "react";
+import { redirect, notFound } from "next/navigation";
+import { Role } from "@prisma/client";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { getCurrentAppUser } from "@/lib/auth";
+import { env } from "@/lib/env";
+import { getStudentClassDetails } from "@/lib/actions/class-actions";
+import { StudentClassDetailsClient } from "./student-class-details-client";
+
+interface PageProps {
+  params: Promise<{
+    classId: string;
+  }>;
+}
+
+export default async function StudentClassDetailsPage({ params }: PageProps) {
+  const { classId } = await params;
+  const user = await getCurrentAppUser();
+
+  if (env.isClerkConfigured && env.isDatabaseConfigured) {
+    if (!user) {
+      redirect("/sign-in");
+    }
+    if (!user.role) {
+      redirect("/onboarding");
+    }
+    if (user.role !== Role.STUDENT) {
+      redirect("/unauthorized");
+    }
+  }
+
+  const activeUser = user || {
+    id: "demo-student-id",
+    clerkId: "demo-clerk-id",
+    email: "student@example.com",
+    name: "Student",
+    imageUrl: null,
+    role: Role.STUDENT,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const classData = await getStudentClassDetails(classId);
+
+  if (!classData) {
+    notFound();
+  }
+
+  return (
+    <DashboardShell user={activeUser} title={`Classroom: ${classData.name}`}>
+      <StudentClassDetailsClient classData={classData} />
+    </DashboardShell>
+  );
+}
