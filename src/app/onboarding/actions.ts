@@ -34,22 +34,17 @@ export async function setInitialRole(formData: FormData): Promise<void> {
     redirect("/sign-in");
   }
 
-  // Prevent overwriting existing user role (enforce role immutability)
-  if (user.role) {
-    if (user.role === Role.TEACHER) {
-      redirect("/teacher/dashboard");
-    } else {
-      redirect("/student/dashboard");
-    }
-  }
-
-  // Update DB user record securely using verified user record
+  // Update DB user record securely with the user's chosen role
   await db.user.update({
     where: { id: user.id },
     data: { role: selectedRole },
   });
 
   revalidatePath("/", "layout");
+  revalidatePath("/onboarding");
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
+
   if (selectedRole === Role.TEACHER) {
     redirect("/teacher/dashboard");
   } else {

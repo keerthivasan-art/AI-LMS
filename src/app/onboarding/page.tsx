@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,16 +27,6 @@ export default async function OnboardingPage() {
     redirect("/sign-in");
   }
 
-  if (user.role === Role.TEACHER) {
-    redirect("/teacher/dashboard");
-  }
-  if (user.role === Role.STUDENT) {
-    redirect("/student/dashboard");
-  }
-  if (user.role) {
-    redirect("/dashboard");
-  }
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 bg-gradient-to-b from-background via-muted/20 to-background">
       <div className="max-w-2xl w-full space-y-8 text-center">
@@ -50,11 +39,13 @@ export default async function OnboardingPage() {
             Choose your role
           </h1>
           <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-            Select how you will use AI-LMS.
+            {user.role
+              ? `Your account is currently set to ${user.role}. You can switch your role below.`
+              : "Select how you will use AI-LMS to personalize your workspace experience."}
           </p>
         </div>
 
-        <RoleSelectionForm />
+        <RoleSelectionForm initialRole={user.role} />
 
         <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5 pt-2">
           <ShieldCheck className="h-4 w-4 text-emerald-500" />

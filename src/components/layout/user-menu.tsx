@@ -67,6 +67,12 @@ function FallbackUserMenu({ user }: UserMenuProps) {
             <span>Profile</span>
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/onboarding" className="flex items-center">
+            <Shield className="mr-2 h-4 w-4" />
+            <span>Switch Role</span>
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -84,6 +90,11 @@ export function UserMenu({ user }: UserMenuProps) {
               label="Profile"
               href="/profile"
               labelIcon={<User className="h-4 w-4" />}
+            />
+            <UserButton.Link
+              label="Switch Role"
+              href="/onboarding"
+              labelIcon={<Shield className="h-4 w-4" />}
             />
           </UserButton.MenuItems>
         </UserButton>

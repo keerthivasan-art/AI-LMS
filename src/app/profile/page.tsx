@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { User, Mail, Shield, Calendar, IdCard, Lock, CheckCircle2 } from "lucide-react";
 import { getCurrentAppUser } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default async function ProfilePage() {
@@ -129,8 +131,17 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
+              <div className="pt-2">
+                <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 cursor-pointer">
+                  <Link href="/onboarding">
+                    <Shield className="h-3.5 w-3.5 text-primary" />
+                    <span>Change or Switch Role (Teacher / Student)</span>
+                  </Link>
+                </Button>
+              </div>
+
               <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
-                Your assigned role determines accessible routes and permissions across the platform. Role selections are server-verified during onboarding.
+                Your assigned role determines accessible routes and permissions across the platform. You can update your workspace role at any time.
               </p>
             </CardContent>
           </Card>

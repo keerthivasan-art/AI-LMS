@@ -80,7 +80,7 @@ export default function SignUpPage() {
         <div className="w-full max-w-md mx-auto my-auto py-8">
           {isClerkReady ? (
             <div className="flex justify-center">
-              <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
+              <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" fallbackRedirectUrl="/onboarding" forceRedirectUrl="/onboarding" />
             </div>
           ) : (
             <Card className="border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">

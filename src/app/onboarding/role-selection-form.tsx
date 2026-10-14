@@ -16,7 +16,7 @@ function SubmitButton({ selectedRole }: { selectedRole: "TEACHER" | "STUDENT" | 
       type="submit"
       disabled={!selectedRole || pending}
       size="lg"
-      className="w-full sm:w-auto min-w-[280px] gap-2 font-bold shadow-md transition-all h-12 text-sm"
+      className="w-full sm:w-auto min-w-[280px] gap-2 font-bold shadow-md transition-all h-12 text-sm cursor-pointer"
     >
       {pending ? (
         <>
@@ -40,8 +40,12 @@ function SubmitButton({ selectedRole }: { selectedRole: "TEACHER" | "STUDENT" | 
   );
 }
 
-export function RoleSelectionForm() {
-  const [selectedRole, setSelectedRole] = useState<"TEACHER" | "STUDENT" | null>(null);
+interface RoleSelectionFormProps {
+  initialRole?: "TEACHER" | "STUDENT" | null;
+}
+
+export function RoleSelectionForm({ initialRole = null }: RoleSelectionFormProps) {
+  const [selectedRole, setSelectedRole] = useState<"TEACHER" | "STUDENT" | null>(initialRole);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -51,6 +55,13 @@ export function RoleSelectionForm() {
       return;
     }
     setErrorMessage(null);
+  };
+
+  const handleKeyDown = (role: "TEACHER" | "STUDENT", e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setSelectedRole(role);
+    }
   };
 
   return (
@@ -67,6 +78,9 @@ export function RoleSelectionForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Teacher Role Card */}
         <Card
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => handleKeyDown("TEACHER", e)}
           onClick={() => setSelectedRole("TEACHER")}
           className={`group relative border-2 transition-all duration-200 cursor-pointer overflow-hidden flex flex-col justify-between ${
             selectedRole === "TEACHER"
@@ -117,7 +131,7 @@ export function RoleSelectionForm() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="pt-0 space-y-2">
+          <CardContent className="pt-0 space-y-4">
             <div className="pt-3 border-t border-border/60 space-y-1.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${selectedRole === "TEACHER" ? "text-primary" : "text-muted-foreground/60"}`} />
@@ -129,14 +143,30 @@ export function RoleSelectionForm() {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${selectedRole === "TEACHER" ? "text-primary" : "text-muted-foreground/60"}`} />
-                <span>Evaluate students</span>
+                <span>Evaluate students & track analytics</span>
               </div>
             </div>
+
+            <Button
+              type="button"
+              variant={selectedRole === "TEACHER" ? "default" : "outline"}
+              size="sm"
+              className="w-full text-xs font-semibold cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedRole("TEACHER");
+              }}
+            >
+              {selectedRole === "TEACHER" ? "✓ Teacher Selected" : "Choose Teacher"}
+            </Button>
           </CardContent>
         </Card>
 
         {/* Student Role Card */}
         <Card
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => handleKeyDown("STUDENT", e)}
           onClick={() => setSelectedRole("STUDENT")}
           className={`group relative border-2 transition-all duration-200 cursor-pointer overflow-hidden flex flex-col justify-between ${
             selectedRole === "STUDENT"
@@ -187,11 +217,11 @@ export function RoleSelectionForm() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="pt-0 space-y-2">
+          <CardContent className="pt-0 space-y-4">
             <div className="pt-3 border-t border-border/60 space-y-1.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${selectedRole === "STUDENT" ? "text-primary" : "text-muted-foreground/60"}`} />
-                <span>Join classes</span>
+                <span>Join classes with invite code</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${selectedRole === "STUDENT" ? "text-primary" : "text-muted-foreground/60"}`} />
@@ -202,6 +232,19 @@ export function RoleSelectionForm() {
                 <span>Take quizzes & view learning progress</span>
               </div>
             </div>
+
+            <Button
+              type="button"
+              variant={selectedRole === "STUDENT" ? "default" : "outline"}
+              size="sm"
+              className="w-full text-xs font-semibold cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedRole("STUDENT");
+              }}
+            >
+              {selectedRole === "STUDENT" ? "✓ Student Selected" : "Choose Student"}
+            </Button>
           </CardContent>
         </Card>
       </div>
