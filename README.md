@@ -16,6 +16,8 @@ All Phase 1 architecture and foundation requirements have been fully implemented
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/) (Radix Primitives)
+- **Backend Framework**: Spring Boot
+- **Backend Language**: Java
 - **Theme System**: [next-themes](https://github.com/pacocoursey/next-themes) (Light / Dark / System)
 - **Toast Provider**: [Sonner](https://sonner.emilkowal.ski/)
 - **Authentication**: [Clerk](https://clerk.com/) (Middleware, Auth Abstraction, Sign-in & Sign-up)
